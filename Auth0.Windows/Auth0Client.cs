@@ -13,11 +13,13 @@ namespace Auth0.Windows
     public partial class Auth0Client
     {
         private const string AuthorizeUrl = "https://{0}/authorize?client_id={1}&redirect_uri={2}&response_type=token&connection={3}&scope={4}";
+        private const string LogoutUrl = "https://{0}/logout?returnTo={1}";
         private const string LoginWidgetUrl = "https://{0}/login/?client={1}&redirect_uri={2}&response_type=token&scope={3}";
         private const string ResourceOwnerEndpoint = "https://{0}/oauth/ro";
         private const string DelegationEndpoint = "https://{0}/delegation";
         private const string UserInfoEndpoint = "https://{0}/userinfo?access_token={1}";
         private const string DefaultCallback = "https://{0}/mobile";
+        private const string DefaultLogoutCallback = "https://{0}/mobile/loggedout";
 
         private readonly string domain;
         private readonly string clientId;
@@ -196,13 +198,26 @@ namespace Auth0.Windows
             });
         }
 
-        /// <summary>
-        /// Log a user out of a Auth0 application.
-        /// </summary>
-        public void Logout()
+        public Task LogoutAsync(IWin32Window owner)
         {
             this.CurrentUser = null;
-            WebBrowserHelpers.ClearCache();
+            var tcs = new TaskCompletionSource<bool>();
+
+            var auth = this.GetAuthenticator("", "openid");
+
+            auth.Error += (o, e) =>
+            {
+                var ex = e.Exception ?? new UnauthorizedAccessException(e.Message);
+                tcs.TrySetException(ex);
+            };
+
+            auth.Completed += (o, e) =>
+            {
+                tcs.TrySetResult(true);
+            };
+            auth.ShowLogoutUI(owner);
+
+            return tcs.Task;
         }
 
         private void SetupCurrentUser(Auth0User auth0User)
@@ -266,7 +281,12 @@ namespace Auth0.Windows
             var startUri = new Uri(authorizeUri + "&state=" + this.State);
             var endUri = new Uri(redirectUri);
 
-            var auth = new BrowserAuthenticationForm(startUri, endUri);
+            var logoutEndRedirect = string.Format(DefaultLogoutCallback, this.domain);
+            var logoutStartUri = new Uri(string.Format(LogoutUrl, this.domain, logoutEndRedirect));
+            var logoutEndUri = new Uri(logoutEndRedirect);
+
+
+            var auth = new BrowserAuthenticationForm(startUri, endUri, logoutStartUri, logoutEndUri);
 
             return auth;
         }

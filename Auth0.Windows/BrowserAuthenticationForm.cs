@@ -14,6 +14,9 @@ namespace Auth0.Windows
     {
         public Uri StartUrl { get; set; }
         public Uri EndUrl { get; set; }
+        public Uri LogoutStartUrl { get; set; }
+        public Uri LogoutEndUrl { get; set; }
+        private Uri MsnComUrl { get; } = new Uri("http://www.msn.com");
 
         static char[] AmpersandChars = new char[] { '&' };
         static char[] EqualsChars = new char[] { '=' };
@@ -23,7 +26,7 @@ namespace Auth0.Windows
 
         private WebBrowser loadingBrowser = new WebBrowser();  
   
-        public BrowserAuthenticationForm(Uri startUrl, Uri endUrl)
+        public BrowserAuthenticationForm(Uri startUrl, Uri endUrl, Uri logoutStartUrl, Uri logoutEndUrl)
         {
             InitializeComponent();
             this.browser.Hide();
@@ -34,6 +37,8 @@ namespace Auth0.Windows
 
             this.StartUrl = startUrl;
             this.EndUrl = endUrl;
+            this.LogoutStartUrl = logoutStartUrl;
+            this.LogoutEndUrl = logoutEndUrl;
         }
 
         private void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -41,7 +46,7 @@ namespace Auth0.Windows
             if (this.BrowserPanel.Controls.ContainsKey("Loading") && e.Url.PathAndQuery.Contains("rpc.html"))
             {
                 this.loadingBrowser.Hide();
-                this.browser.Show();                
+                this.browser.Show();
             }
 
             UpdateStatus("");
@@ -73,13 +78,19 @@ namespace Auth0.Windows
             {
                 if (fragment == null || fragment.Keys.Count == 1)
                 {
-                    OnError("The response is too large and Internet Explorer does not support it. Try using scope=openid instead or remove attributes with rules.");
+                    OnError(
+                        "The response is too large and Internet Explorer does not support it. Try using scope=openid instead or remove attributes with rules.");
                 }
                 else
                 {
                     OnCompleted(fragment);
                 }
-                
+
+                this.Close();
+            }
+            else if (UrlMatchesLogoutRedirect(url))
+            {
+                OnCompleted(fragment);
                 this.Close();
             }
         }
@@ -106,6 +117,11 @@ namespace Auth0.Windows
         {
             return url.Host == this.EndUrl.Host && url.LocalPath == this.EndUrl.LocalPath;
         }
+        private bool UrlMatchesLogoutRedirect(Uri url)
+        {
+            return (url.Host == this.LogoutEndUrl.Host && url.LocalPath == this.LogoutEndUrl.LocalPath) ||
+                (url.Host == this.MsnComUrl.Host && url.LocalPath == this.MsnComUrl.LocalPath);
+        }
 
         private static IDictionary<string, string> FormDecode(string encodedString)
         {
@@ -131,6 +147,12 @@ namespace Auth0.Windows
         public void ShowUI(IWin32Window owner)
         {
             this.browser.Navigate(this.StartUrl.AbsoluteUri);
+            this.ShowDialog(owner);
+        }
+
+        public void ShowLogoutUI(IWin32Window owner)
+        {
+            this.browser.Navigate(this.LogoutStartUrl.AbsoluteUri);
             this.ShowDialog(owner);
         }
 
