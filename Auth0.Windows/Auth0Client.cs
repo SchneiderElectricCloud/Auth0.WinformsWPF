@@ -309,7 +309,7 @@ namespace Auth0.Windows
                 {
                     this.SetupCurrentUser(new Auth0User(accountProperties)
                     {
-                        IdTokenExpiresAt = DateTime.Now.AddSeconds(expiresIn)
+                        IdTokenExpiresAt = DateTime.UtcNow.AddSeconds(expiresIn)
                     });
                 }
             })

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
@@ -19,9 +20,15 @@ namespace Auth0.Windows
             this.RefreshToken = accountProperties.ContainsKey("refresh_token") ? accountProperties["refresh_token"] : string.Empty;
 
             this.State = accountProperties.ContainsKey("state") ? accountProperties["state"] : null;
-            this.IdTokenExpiresAt = this.Profile?["exp"] != null ? 
-                UnixTimeStampToDateTime(double.Parse(this.Profile["exp"].ToString())) : 
-                DateTime.MaxValue; 
+            if (this.Profile?["exp"] != null)
+            {
+                this.IdTokenExpiresAt = UnixTimeStampToDateTime(double.Parse(this.Profile["exp"].ToString()));
+            }
+            else
+            {
+                var token = new JwtSecurityToken(this.IdToken);
+                this.IdTokenExpiresAt = token.ValidTo;
+            } 
         }
 
         public string RefreshToken { get; set; }
