@@ -23,6 +23,7 @@ namespace Auth0.Windows
 
         public event EventHandler<AuthenticatorCompletedEventArgs> Completed;
         public event EventHandler<AuthenticatorErrorEventArgs> Error;
+        public event EventHandler<AuthenticatorCanceledEventArgs> Canceled;
 
         private WebBrowser loadingBrowser = new WebBrowser();  
   
@@ -107,6 +108,12 @@ namespace Auth0.Windows
                 Error(this, new AuthenticatorErrorEventArgs(error));
         }
 
+        protected virtual void OnCancled()
+        {
+            if (Completed != null)
+                Completed(this, new AuthenticatorCompletedEventArgs(null));
+        }
+
         protected virtual void OnError(Exception ex)
         {
             if (Error != null)
@@ -153,7 +160,7 @@ namespace Auth0.Windows
         public void ShowLogoutUI(IWin32Window owner)
         {
             this.browser.Navigate(this.LogoutStartUrl.AbsoluteUri);
-            this.ShowDialog(owner);
+            //this.ShowDialog(owner);
         }
 
         private void UpdateStatus(string message)
@@ -173,7 +180,8 @@ namespace Auth0.Windows
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            this.OnError("The operation was canceled by the user.");
+            this.OnCancled();
+            //this.OnError("The operation was canceled by the user.");
             this.Close();
         }
 
@@ -272,6 +280,31 @@ namespace Auth0.Windows
                 Message = exception.ToString();
                 Exception = exception;
             }
+        }
+
+        public class AuthenticatorCanceledEventArgs : EventArgs
+        {
+            /// <summary>
+            /// Gets a message describing the error.
+            /// </summary>
+            /// <value>
+            /// The message.
+            /// </value>
+            public string Message { get; private set; }
+            
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Xamarin.Auth.AuthenticatorErrorEventArgs"/> class
+            /// with a message but no exception.
+            /// </summary>
+            /// <param name='message'>
+            /// A message describing the error.
+            /// </param>
+            public AuthenticatorCanceledEventArgs(string message)
+            {
+                Message = message;
+            }
+            
         }
 
         private void browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)

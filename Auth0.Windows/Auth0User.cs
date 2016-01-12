@@ -16,12 +16,15 @@ namespace Auth0.Windows
             this.Auth0AccessToken = accountProperties.ContainsKey("access_token") ? accountProperties["access_token"] : string.Empty;
             this.IdToken = accountProperties.ContainsKey("id_token") ? accountProperties["id_token"] : string.Empty;
             this.Profile = accountProperties.ContainsKey("profile") ? accountProperties["profile"].ToJson() : null;
+            this.RefreshToken = accountProperties.ContainsKey("refresh_token") ? accountProperties["refresh_token"] : string.Empty;
 
             this.State = accountProperties.ContainsKey("state") ? accountProperties["state"] : null;
-            this.IdTokenExpiresAt = this.Profile != null && this.Profile["exp"] != null ? 
+            this.IdTokenExpiresAt = this.Profile?["exp"] != null ? 
                 UnixTimeStampToDateTime(double.Parse(this.Profile["exp"].ToString())) : 
                 DateTime.MaxValue; 
         }
+
+        public string RefreshToken { get; set; }
 
         public string Auth0AccessToken { get; set; }
 

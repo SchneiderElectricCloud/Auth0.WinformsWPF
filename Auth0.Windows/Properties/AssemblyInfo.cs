@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Auth0.Windows")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("SE.Auth0.Windows")]
+[assembly: AssemblyDescription("Helps facilitate logging into Auth0 from WPF or Winforms applications")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Schneider Electric")]
 [assembly: AssemblyProduct("Auth0.Windows")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
