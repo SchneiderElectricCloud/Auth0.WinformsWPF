@@ -153,7 +153,7 @@ namespace Auth0.Windows
 
         public void ShowUI(IWin32Window owner)
         {
-            WebBrowserHelper.ClearCache();
+           // WebBrowserHelper.ClearCache();
 
             this.browser.Navigate(this.StartUrl.AbsoluteUri);
             this.ShowDialog(owner);
