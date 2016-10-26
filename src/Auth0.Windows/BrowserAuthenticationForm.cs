@@ -47,7 +47,7 @@ namespace Auth0.Windows
             if (this.BrowserPanel.Controls.ContainsKey("Loading") && e.Url.PathAndQuery.Contains("rpc.html"))
             {
                 this.loadingBrowser.Hide();
-                this.browser.Show();
+                this.browser.Show();                
             }
 
             UpdateStatus("");
@@ -86,7 +86,7 @@ namespace Auth0.Windows
                 {
                     OnCompleted(fragment);
                 }
-
+                
                 this.Close();
             }
             else if (UrlMatchesLogoutRedirect(url))
@@ -153,6 +153,8 @@ namespace Auth0.Windows
 
         public void ShowUI(IWin32Window owner)
         {
+            WebBrowserHelper.ClearCache();
+
             this.browser.Navigate(this.StartUrl.AbsoluteUri);
             this.ShowDialog(owner);
         }

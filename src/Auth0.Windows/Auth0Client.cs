@@ -191,35 +191,35 @@ namespace Auth0.Windows
         /// <param name="options">Custom parameters.</param>
         public Task<JObject> GetDelegationToken(string targetClientId, IDictionary<string, string> options = null)
         {
-            string idToken = "";
+            string id_Token = String.Empty;
             options = options ?? new Dictionary<string, string>();
 
             // ensure id_token
             if (options.ContainsKey("id_token"))
             {
-                idToken = options["id_token"];
+                id_Token = options["id_token"];
                 options.Remove("id_token");
             }
             else if(targetClientId != null)
             {
-                idToken = this.CurrentUser?.IdToken;
-                if (string.IsNullOrEmpty(idToken))
-                {
-                    throw new InvalidOperationException(
-                        "You need to login first or specify a value for id_token parameter.");
-                }
+                id_Token = this.CurrentUser?.IdToken;
+                if (string.IsNullOrEmpty(id_Token))
+            {
+                throw new InvalidOperationException(
+                    "You need to login first or specify a value for id_token parameter.");
             }
-            
+            }
+
 
             var endpoint = string.Format(DelegationEndpoint, this.domain);
             var parameters = new Dictionary<string, string> 
             {
-                { "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer" },
-                { "client_id", this.clientId }
+                    { "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer" },
+                    { "client_id", this.clientId }
             };
             if (targetClientId != null)
             {
-                parameters.Add("id_token", idToken);
+                parameters.Add("id_token", id_Token);
                 parameters.Add("target", targetClientId);
             }
 
