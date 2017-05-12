@@ -311,7 +311,10 @@ namespace Auth0.Windows
 
         private void browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            UpdateStatus("Loading...");
+            if (e.Url.ToString() != "about:blank")
+            {
+                UpdateStatus("Loading...");
+            }
         }
 
         private void ToggleFullScreen_Click(object sender, EventArgs e)

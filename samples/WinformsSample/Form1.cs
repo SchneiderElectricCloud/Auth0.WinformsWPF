@@ -31,7 +31,7 @@ namespace WinformsSample
 
         private void logoutButton_Click(object sender, EventArgs e)
         {
-            auth0.Logout();
+            auth0.Logout(this);
             MessageBox.Show("Logout was succesful");
         }
     }
